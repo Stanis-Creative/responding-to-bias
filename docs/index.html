@@ -117,9 +117,31 @@
           document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
               }).then((unityInstance) => {
                 document.querySelector("#unity-loading-bar").style.display = "none";
-                document.querySelector("#unity-fullscreen-button").onclick = () => {
-                  unityInstance.SetFullscreen(1);
+                var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+                var defaultCanvasWidth = "640px";
+                var defaultCanvasHeight = "360px";
+                var browserFilled = false;
+
+                function setBrowserFill(filled) {
+                  browserFilled = filled;
+                  document.documentElement.classList.toggle("unity-browser-fill", filled);
+                  document.querySelector("#unity-container").classList.toggle("unity-browser-fill", filled);
+                  canvas.style.width = filled ? "100%" : defaultCanvasWidth;
+                  canvas.style.height = filled ? "calc(100% - 38px)" : defaultCanvasHeight;
+                  fullscreenButton.setAttribute("aria-pressed", filled ? "true" : "false");
+                  fullscreenButton.title = filled ? "Restore window" : "Fill browser";
+                  window.dispatchEvent(new Event("resize"));
+                }
+
+                fullscreenButton.title = "Fill browser";
+                fullscreenButton.onclick = () => {
+                  setBrowserFill(!browserFilled);
                 };
+                document.addEventListener("keydown", (event) => {
+                  if (event.key === "Escape" && browserFilled) {
+                    setBrowserFill(false);
+                  }
+                });
 
               }).catch((message) => {
                 alert(message);
